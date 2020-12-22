@@ -1,0 +1,22 @@
+{
+  "name": "typescript-helper-types",
+  "version": "1.0.0",
+  "description": "some helper types, curated/created , tested and documented",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SreeChandan/typescript-helper-types.git"
+  },
+  "author": "sree chandan. R",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SreeChandan/typescript-helper-types/issues"
+  },
+  "homepage": "https://github.com/SreeChandan/typescript-helper-types#readme",
+  "devDependencies": {
+    "typescript": "^4.1.3"
+  }
+}

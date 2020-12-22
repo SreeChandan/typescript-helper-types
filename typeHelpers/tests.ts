@@ -109,7 +109,6 @@ function arrayToUnionArrayTest() {
 import { UnionToUnionOrUnionArray } from "./types";
 function unionToUnionOrUnionArrayTest() {
   type test1 = TestTypeTisU<UnionToUnionOrUnionArray<"foo">, "foo" | "foo"[]>;
-  type tt = UnionToUnionOrUnionArray<"foo" | "bar"[]>; // why is this resolving to never?
   type test2 = TestTypeTisU<
     UnionToUnionOrUnionArray<"foo" | "bar">,
     "foo" | "bar" | ("foo" | "bar")[]
@@ -118,20 +117,20 @@ function unionToUnionOrUnionArrayTest() {
     UnionToUnionOrUnionArray<"foo" | "bar"[]>,
     ("foo" | "foo"[]) | ("foo" | "foo"[])[]
   >;
-  type test3 = TestTypeTisU<
+  type test4 = TestTypeTisU<
     UnionToUnionOrUnionArray<"foo" | "bar">,
     "foo" | "bar" | ("foo" | "bar")[]
   >;
-  type test4 = TestTypeTisU<
+  type test5 = TestTypeTisU<
     UnionToUnionOrUnionArray<"foo" | "bar">,
     "foo" | "bar" | ("foo" | "bar")[] | "foo"[] | "bar"[]
   >;
-  type test5 = TestTypeTinU<
+  type test6 = TestTypeTinU<
     "foo"[] | "bar"[],
     UnionToUnionOrUnionArray<"foo" | "bar">
   >;
 
-  type result = TestTypeTisU<test1 & test2 & test3 & test4 & test5, TestPassed>;
+  type result = TestTypeTisU<test1 & test2 & test3 & test4 & test5 & test6, TestPassed>;
 
   return undefined as result | undefined;
 }
