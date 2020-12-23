@@ -115,7 +115,7 @@ function unionToUnionOrUnionArrayTest() {
   >;
   type test3 = TestTypeTisU<
     UnionToUnionOrUnionArray<"foo" | "bar"[]>,
-    ("foo" | "foo"[]) | ("foo" | "foo"[])[]
+    ("foo" | "bar"[]) | ("foo" | "bar"[])[]
   >;
   type test4 = TestTypeTisU<
     UnionToUnionOrUnionArray<"foo" | "bar">,
