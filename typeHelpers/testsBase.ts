@@ -1,47 +1,178 @@
-export type TestPassed = "TEST PASSED";
-export type TestFailed = "TEST FAILED";
-/*type TestTypeTinU1<T, inU> = UnionToIntersection<
-  [T] extends [never] ? TestFailed : T extends inU ? TestPassed : TestFailed
->;*/
+const __TEST_PASSED__ = Symbol();
+const __TEST_FAILED__ = Symbol();
+export type TestPassed = typeof __TEST_PASSED__;
+export type TestFailed = typeof __TEST_FAILED__;
+
+type ArrayIndices<
+  T extends readonly unknown[],
+  Q = keyof T,
+  U extends `${number}` = Q extends `${number}` ? Q : never
+> = U extends keyof [] ? never : U;
+type IsTuple<
+  T extends readonly unknown[],
+  K extends `${number}` = ArrayIndices<T>
+> = [K] extends [never] ? TestFailed : TestPassed;
+type TupleOnly<T extends readonly unknown[]> = [T] extends [unknown[]]
+  ? /*unknown[]*/ TestPassed extends IsTuple<T>
+    ? T
+    : never
+  : /*readonly unknown[]*/ never;
+type ArrayOnly<T extends readonly unknown[]> = [T] extends [unknown[]]
+  ? /*unknown[]*/ TestPassed extends IsTuple<T>
+    ? never
+    : T
+  : /*readonly unknown[]*/ never;
+type ReadonlyArrayOnly<T extends readonly unknown[]> = [T] extends [unknown[]]
+  ? /*unknown[]*/ never
+  : /*readonly unknown[]*/ TestPassed extends IsTuple<T>
+  ? never
+  : T;
+type ReadonlyTupleOnly<T extends readonly unknown[]> = [T] extends [unknown[]]
+  ? /*unknown[]*/ never
+  : /*readonly unknown[]*/ TestPassed extends IsTuple<T>
+  ? T
+  : never;
+type NotUnion<T, U extends T = T> = (
+  T extends any ? (U extends T ? false : true) : never
+) extends false
+  ? T
+  : never;
+type TestTypeArrayTisU<
+  Ts extends readonly unknown[],
+  isUs extends readonly unknown[],
+  T extends NotUnion<readonly unknown[]> = NotUnion<Ts>,
+  isU extends NotUnion<readonly unknown[]> = NotUnion<isUs>
+> = true extends
+  | ([T] extends [never] ? true : false)
+  | ([U] extends [never] ? true : false)
+  ? TestFailed
+  : [T] extends [unknown[]]
+  ? /*unknown[]*/ [T] extends [[unknown]]
+    ? /**[unknown] */ [TupleOnly<isU>] extends [never]
+      ? TestFailed
+      : [T] extends [isU]
+      ? TestPassed
+      : TestFailed
+    : /**unknown[] */ [ArrayOnly<isU>] extends [never]
+    ? TestFailed
+    : [T] extends [isU]
+    ? TestPassed
+    : TestFailed
+  : [T] extends [readonly [unknown]]
+  ? /*readonly [unknown]*/ [ReadonlyTupleOnly<isU>] extends [never]
+    ? TestFailed
+    : [T] extends [isU]
+    ? TestPassed
+    : TestFailed
+  : /*readonly unknown[]*/ [ReadonlyArrayOnly<isU>] extends [never]
+  ? TestFailed
+  : [T] extends [isU]
+  ? TestPassed
+  : TestFailed;
+type IsArrayInU<T extends readonly unknown[], inU> = TestPassed extends (
+  inU extends unknown
+    ? inU extends readonly unknown[]
+      ? TestTypeArrayTisU<T, inU>
+      : TestFailed
+    : never
+)
+  ? TestPassed
+  : TestFailed;
+type IsNotArrayInU<T, inU> = TestPassed extends (
+  inU extends unknown
+    ? inU extends readonly unknown[]
+      ? never
+      : T extends inU
+      ? TestPassed
+      : TestFailed
+    : never
+)
+  ? TestPassed
+  : TestFailed;
 export type TestTypeTinU<T, inU> = [T] extends [never]
+  ? [inU] extends [never]
+    ? TestPassed
+    : TestFailed
+  : [inU] extends [never]
   ? TestFailed
-  : [T] extends [inU]
-  ? TestPassed
-  : TestFailed;
-export type TestTypeTinU1<T, inU> = [T] extends [never]
-  ? TestFailed
-  : T extends inU
-  ? TestPassed
-  : TestFailed;
-export type TestTypeTNotInU<T, NotInU> = TestTypeTinU<
-  T,
-  NotInU
-> extends TestPassed
+  : TestFailed extends (
+      T extends readonly unknown[] ? IsArrayInU<T, inU> : IsNotArrayInU<T, inU>
+    )
   ? TestFailed
   : TestPassed;
-export type TestTypeTisU2<T, isU> = TestTypeTinU<[T], [isU]> &
-  TestTypeTinU<[isU], [T]> extends never | TestFailed
-  ? TestFailed
-  : TestPassed;
-export type TestTypeTisU<T, isU> = TestPassed extends TestTypeTinU<[T], [isU]> &
-  TestTypeTinU<[isU], [T]>
+export type TestTypeTisU<T, isU> = TestPassed extends TestTypeTinU<T, isU> &
+  TestTypeTinU<isU, T>
   ? TestPassed
   : TestFailed;
-export type TestTypeTisNotU<T, isNotU> = TestTypeTisU<
-  T,
-  isNotU
-> extends TestPassed
+export type Not<T extends TestFailed | TestPassed> = T extends TestPassed
   ? TestFailed
   : TestPassed;
+
+export type NonNullableReturnType<T extends () => void> = NonNullable<ReturnType<T>>;
+
+function testTypeArrayTisUTest() {
+  type test1 = TestTypeArrayTisU<"foo"[], "foo"[]>;
+  type test2 = Not<TestTypeArrayTisU<["foo"], "foo"[]>>;
+  type test3 = Not<TestTypeArrayTisU<"foo"[], ["foo"]>>;
+  type test4 = Not<TestTypeArrayTisU<"foo"[] | ["foo"], ["foo"]>>;
+
+  type test5 = TestTypeArrayTisU<readonly "foo"[], readonly "foo"[]>;
+  type test7 = Not<TestTypeArrayTisU<readonly ["foo"], readonly "foo"[]>>;
+  type test8 = Not<TestTypeArrayTisU<readonly "foo"[], readonly ["foo"]>>;
+  type test9 = Not<
+    TestTypeArrayTisU<readonly "foo"[] | readonly ["foo"], readonly ["foo"]>
+  >;
+
+  type result = TestPassed extends test1 &
+    test2 &
+    test3 &
+    test4 &
+    test5 &
+    test7 &
+    test8 &
+    test9
+    ? TestPassed
+    : TestFailed;
+  return undefined as result | undefined;
+}
+
+function isNotArrayInUTest() {
+  type test1 = IsNotArrayInU<"foo", "foo">; // case: Best case scenario when input and output are same.
+  type test2 = IsNotArrayInU<"foo", "foo" | "bar">;
+  type test3 = IsNotArrayInU<"foo", "foo" | "bar"[]>;
+  type test4 = Not<IsNotArrayInU<"foo", "foo"[] | "bar">>;
+  type test5 = IsNotArrayInU<"foo", "foo" | "foo"[]>;
+
+  type result = TestPassed extends test1 & test2 & test3 & test4 & test5
+    ? TestPassed
+    : TestFailed;
+
+  return undefined as result | undefined;
+}
 
 function testTypeTinUTest() {
   type test1 = TestTypeTinU<"foo", "foo">; // case: Best case scenario when input and output are same.
   type test2 = TestTypeTinU<"foo", "foo" | "bar">;
-  type test3 = TestTypeTNotInU<"foo" | "bar", "foo">;
+  type test3 = TestTypeTinU<"foo" | "bar", "foo" | "bar" | "fart">;
+  type test4 = Not<TestTypeTinU<"foo" | "bar", "foo">>;
 
-  type result = test1 & test2 & test3 extends never | TestFailed
-    ? TestFailed
-    : TestPassed;
+  type test5 = TestTypeTinU<"foo"[], "foo"[]>;
+  type test6 = TestTypeTinU<"foo"[], "foo"[] | ["foo"]>; // should work: WIP
+  type test7 = Not<TestTypeTinU<["foo"], "foo"[]>>;
+  type test8 = Not<TestTypeTinU<"foo"[], ["foo"]>>;
+  type test9 = TestTypeTinU<"foo"[] | "bar", "foo"[] | "bar" | "fart">;
+
+  type result = TestPassed extends test1 &
+    test2 &
+    test3 &
+    test4 &
+    test5 &
+    test6 &
+    test7 &
+    test8 &
+    test9
+    ? TestPassed
+    : TestFailed;
 
   return undefined as result | undefined;
 }
@@ -50,12 +181,19 @@ function testTypeTisUTest() {
   type test2 = TestTypeTisU<"foo" | "bar", "foo" | "bar">;
 
   // fail cases
-  type test3 = TestTypeTisNotU<"foo", "foo" | "bar">;
-  type test4 = TestTypeTisNotU<"foo" | "bar", "foo">;
+  type test3 = Not<TestTypeTisU<"foo", "foo" | "bar">>;
+  type test4 = Not<TestTypeTisU<"foo" | "bar", "foo">>;
 
-  type result = test1 & test2 & test3 & test4 extends never | TestFailed
-    ? TestFailed
-    : TestPassed;
+  type test5 = Not<
+    TestTypeTisU<
+      "foo" | "foo"[] | readonly "foo"[],
+      "foo" | "foo"[] | readonly "foo"[] | readonly ["foo"]
+    >
+  >;
+
+  type result = TestPassed extends test1 & test2 & test3 & test4 & test5
+    ? TestPassed
+    : TestFailed;
 
   return undefined as result | undefined;
 }
