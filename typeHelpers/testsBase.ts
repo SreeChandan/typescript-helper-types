@@ -109,14 +109,6 @@ export type Not<T extends TestFailed | TestPassed> = T extends TestPassed
   : TestPassed;
 
 export type TestReturn<T extends () => readonly [unknown]> = ReturnType<T>[0];
-export type DebugResults<
-  T extends { [x: string]: symbol },
-  TestPassedMsg extends string = "TEST PASSED",
-  TestFailedMsg extends string = "TEST FAILED",
-  TKey extends keyof T = keyof T
-> = {
-  [P in TKey]: T[P] extends TestPassed ? TestPassedMsg : TestFailedMsg;
-};
 export type TestManager<
   T extends readonly (TestFailed | TestPassed)[],
   TestPassedMsg extends string = "TEST PASSED",

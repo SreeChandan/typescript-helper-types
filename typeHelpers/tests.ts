@@ -7,7 +7,6 @@ import {
   Not,
   TestTypeTisU,
   TestReturn,
-  DebugResults,
   TestManager,
 } from "./testsBase";
 
