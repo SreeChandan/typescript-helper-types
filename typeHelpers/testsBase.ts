@@ -3,6 +3,15 @@ const __TEST_FAILED__ = Symbol();
 export type TestPassed = typeof __TEST_PASSED__;
 export type TestFailed = typeof __TEST_FAILED__;
 
+export type DebugResults<
+  T extends { [x: string]: symbol },
+  TestPassedMsg extends string = "TEST PASSED",
+  TestFailedMsg extends string = "TEST FAILED",
+  TKey extends keyof T = keyof T
+> = {
+  [P in TKey]: T[P] extends TestPassed ? TestPassedMsg : TestFailedMsg;
+};
+
 type ArrayIndices<
   T extends readonly unknown[],
   Q = keyof T,
@@ -108,7 +117,9 @@ export type Not<T extends TestFailed | TestPassed> = T extends TestPassed
   ? TestFailed
   : TestPassed;
 
-export type NonNullableReturnType<T extends () => void> = NonNullable<ReturnType<T>>;
+export type NonNullableReturnType<T extends () => void> = NonNullable<
+  ReturnType<T>
+>;
 
 function testTypeArrayTisUTest() {
   type test1 = TestTypeArrayTisU<"foo"[], "foo"[]>;
