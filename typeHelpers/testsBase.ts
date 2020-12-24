@@ -3,15 +3,6 @@ export const __TEST_FAILED__ = Symbol();
 export type TestPassed = typeof __TEST_PASSED__;
 export type TestFailed = typeof __TEST_FAILED__;
 
-export type DebugResults<
-  T extends { [x: string]: symbol },
-  TestPassedMsg extends string = "TEST PASSED",
-  TestFailedMsg extends string = "TEST FAILED",
-  TKey extends keyof T = keyof T
-> = {
-  [P in TKey]: T[P] extends TestPassed ? TestPassedMsg : TestFailedMsg;
-};
-
 type ArrayIndices<
   T extends readonly unknown[],
   Q = keyof T,
@@ -118,6 +109,35 @@ export type Not<T extends TestFailed | TestPassed> = T extends TestPassed
   : TestPassed;
 
 export type TestReturn<T extends () => readonly [unknown]> = ReturnType<T>[0];
+export type DebugResults<
+  T extends { [x: string]: symbol },
+  TestPassedMsg extends string = "TEST PASSED",
+  TestFailedMsg extends string = "TEST FAILED",
+  TKey extends keyof T = keyof T
+> = {
+  [P in TKey]: T[P] extends TestPassed ? TestPassedMsg : TestFailedMsg;
+};
+export type TestManager<
+  T extends readonly (TestFailed | TestPassed)[],
+  TestPassedMsg extends string = "TEST PASSED",
+  TestFailedMsg extends string = "TEST FAILED",
+  U extends ArrayIndices<T> = ArrayIndices<T>
+> = {
+  Tests: {
+    [P in `test${ArrayIndices<T>}`]: T[P extends `test${infer U}`
+      ? U
+      : never] extends TestPassed
+      ? TestPassedMsg
+      : TestFailedMsg;
+  };
+  Debug: {
+    [P in U extends unknown
+      ? T[U] extends TestFailed
+        ? `test${U}`
+        : never
+      : never]: TestFailedMsg;
+  };
+} & { Result: TestFailed extends T[number] ? TestFailed : TestPassed };
 
 function testTypeArrayTisUTest() {
   type test1 = TestTypeArrayTisU<"foo"[], "foo"[]>;
