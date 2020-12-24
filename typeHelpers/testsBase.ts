@@ -1,5 +1,5 @@
-const __TEST_PASSED__ = Symbol();
-const __TEST_FAILED__ = Symbol();
+export const __TEST_PASSED__ = Symbol();
+export const __TEST_FAILED__ = Symbol();
 export type TestPassed = typeof __TEST_PASSED__;
 export type TestFailed = typeof __TEST_FAILED__;
 
@@ -117,9 +117,7 @@ export type Not<T extends TestFailed | TestPassed> = T extends TestPassed
   ? TestFailed
   : TestPassed;
 
-export type NonNullableReturnType<T extends () => void> = NonNullable<
-  ReturnType<T>
->;
+export type TestReturn<T extends () => readonly [unknown]> = ReturnType<T>[0];
 
 function testTypeArrayTisUTest() {
   type test1 = TestTypeArrayTisU<"foo"[], "foo"[]>;
