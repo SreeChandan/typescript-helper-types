@@ -20,6 +20,9 @@ export type TestTypeTinU<T, inU> = [T] extends [never]
     )
   ? TestFailed
   : TestPassed;
+/**
+ * Note: may not deal with {} types properly yet.
+ */
 export type TestTypeTisU<T, isU> = TestPassed extends TestTypeTinU<T, isU> &
   TestTypeTinU<isU, T>
   ? TestPassed
@@ -33,22 +36,24 @@ export type TestManager<
   T extends readonly (TestFailed | TestPassed)[],
   TestPassedMsg extends string = "TEST PASSED",
   TestFailedMsg extends string = "TEST FAILED",
-  U extends ArrayIndices<T> = ArrayIndices<T>
-> = {
-  Tests: {
-    [P in `test${ArrayIndices<T>}`]: T[P extends `test${infer U}`
+  U extends ArrayIndices<T> = ArrayIndices<T>,
+  PassedTests extends `test${U}` = keyof {
+    [P in `test${U}`]: T[P extends `test${infer U}`
       ? U
       : never] extends TestPassed
       ? TestPassedMsg
       : TestFailedMsg;
-  };
-  Debug: {
+  },
+  FailedTests extends `test${U}` = keyof {
     [P in U extends unknown
       ? T[U] extends TestFailed
         ? `test${U}`
         : never
-      : never]: TestFailedMsg;
-  };
+      : never]: unknown;
+  }
+> = {
+  PassedTests: [PassedTests] extends [never] ? null : PassedTests;
+  FailedTests: [FailedTests] extends [never] ? null : FailedTests;
 } & { Result: TestFailed extends T[number] ? TestFailed : TestPassed };
 
 function notUnionTest() {
@@ -70,6 +75,10 @@ function testTypeArrayTisUTest() {
   type test4 = Not<TestTypeArrayTisU<"foo"[] | ["foo"], ["foo"]>>;
 
   type test5 = TestTypeArrayTisU<readonly "foo"[], readonly "foo"[]>;
+  type test6 = TestTypeArrayTisU<
+    readonly ["foo", "bar"],
+    readonly ["foo", "bar"]
+  >;
   type test7 = Not<TestTypeArrayTisU<readonly ["foo"], readonly "foo"[]>>;
   type test8 = Not<TestTypeArrayTisU<readonly "foo"[], readonly ["foo"]>>;
   type test9 = Not<

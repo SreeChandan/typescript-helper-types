@@ -1,6 +1,4 @@
-/*import {
- //__TEST__STATE__
-} from "./typesBase";*/
+import { TestTypeArrayTisU } from "./typesBase";
 import {
   TestTypeTinU,
   Not,
@@ -24,8 +22,8 @@ function filterOutReadonlyArrayOnlyTest() {
       TestTypeTisU<RemoveReadonlyArrayOnly<readonly ["foo"] | "bar">, "bar">
     ]
   >;
-  type tests = testsManager["Tests"];
-  type debug = testsManager["Debug"];
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
   return [undefined as result | undefined] as const; // ref: https://github.com/microsoft/TypeScript/issues/32242#issuecomment-508266857
@@ -44,8 +42,8 @@ function filterOutArrayOnlyTest() {
       >
     ]
   >;
-  type tests = testsManager["Tests"];
-  type debug = testsManager["Debug"];
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
   return [undefined as result | undefined] as const;
@@ -60,8 +58,8 @@ function filterOutArrayTest() {
       TestTypeTisU<RemoveArray<readonly "foo"[] | "foo2">, "foo2">
     ]
   >;
-  type tests = testsManager["Tests"];
-  type debug = testsManager["Debug"];
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
   return [undefined as result | undefined] as const;
@@ -76,8 +74,8 @@ function readonlyArrayToUnionArrayTest() {
       TestTypeTisU<ReadonlyArrayToUnionArray<readonly "foo"[]>, "foo"[]>
     ]
   >;
-  type tests = testsManager["Tests"];
-  type debug = testsManager["Debug"];
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
   return [undefined as result | undefined] as const;
@@ -102,8 +100,8 @@ function arrayToUnionArrayTest() {
       >
     ]
   >;
-  type tests = testsManager["Tests"];
-  type debug = testsManager["Debug"];
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
   return [undefined as result | undefined] as const;
@@ -134,8 +132,8 @@ function unionToUnionOrUnionArrayTest() {
       TestTypeTinU<"foo"[] | "bar"[], UnionToUnionOrUnionArray<"foo" | "bar">>
     ]
   >;
-  type tests = testsManager["Tests"];
-  type debug = testsManager["Debug"];
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
   return [undefined as result | undefined] as const;
@@ -143,8 +141,6 @@ function unionToUnionOrUnionArrayTest() {
 
 import { ToUnionOrUnionArray } from "./types";
 function toUnionOrUnionArrayTest() {
-  type tt = ToUnionOrUnionArray<"foo" | "bar"[]>;
-
   type testsManager = TestManager<
     [
       TestTypeTisU<
@@ -205,8 +201,42 @@ function toUnionOrUnionArrayTest() {
       TestTypeTinU<"foo"[] | "bar"[], ToUnionOrUnionArray<"foo" | "bar">>
     ]
   >;
-  type tests = testsManager["Tests"];
-  type debug = testsManager["Debug"];
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
+  type result = testsManager["Result"];
+
+  return [undefined as result | undefined] as const;
+}
+
+import { ArrayIndicesSlice } from "./types";
+function arrayIndicesSliceTest() {
+  type testsManager = TestManager<
+    [TestTypeTisU<ArrayIndicesSlice<["foo"], "0">, never>]
+  >;
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
+  type result = testsManager["Result"];
+
+  return [undefined as result | undefined] as const;
+}
+
+import { UniqueList } from "./types";
+function uniqueListTest() {
+  type testsManager = TestManager<
+    [
+      TestTypeTisU<
+        UniqueList<readonly ["foo", "bar"]>,
+        readonly ["foo", "bar"]
+      >,
+      TestTypeTisU<UniqueList<readonly ["foo", "foo"]>, never>,
+      TestTypeTisU<
+        UniqueList<readonly ["foo"| "bar", "bar"]>,
+        readonly ["foo" | "bar", "bar"]
+      >,
+    ]
+  >;
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
   return [undefined as result | undefined] as const;
@@ -223,6 +253,6 @@ type testsManager = TestManager<
     TestReturn<typeof toUnionOrUnionArrayTest>
   ]
 >;
-type tests = testsManager["Tests"];
-type debug = testsManager["Debug"];
+type passedTests = testsManager["PassedTests"];
+type failedTests = testsManager["FailedTests"];
 type result = testsManager["Result"];

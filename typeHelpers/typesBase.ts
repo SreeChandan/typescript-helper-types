@@ -1,7 +1,7 @@
 export const __TEST_PASSED__ = Symbol();
 export const __TEST_FAILED__ = Symbol();
 export const __TEST__STATE__ = {
-  PASSED: __TEST_PASSED__ as typeof __TEST_PASSED__, 
+  PASSED: __TEST_PASSED__ as typeof __TEST_PASSED__,
   FAILED: __TEST_FAILED__ as typeof __TEST_FAILED__,
 };
 export type TestPassed = typeof __TEST__STATE__.PASSED;
@@ -44,6 +44,7 @@ export type NotUnion<T, U extends T = T> = (
 ) extends false
   ? T
   : never;
+
 export type TestTypeArrayTisU<
   Ts extends readonly unknown[],
   isUs extends readonly unknown[],
@@ -53,7 +54,7 @@ export type TestTypeArrayTisU<
   | ([T] extends [never] ? true : false)
   | ([isU] extends [never] ? true : false)
   ? TestFailed
-  : [T] extends [unknown[]]
+  : [T] extends [unknown[]] // T is not readonly
   ? /*unknown[]*/ [T] extends [[unknown]]
     ? /**[unknown] */ [TupleOnly<isU>] extends [never]
       ? TestFailed
@@ -65,17 +66,18 @@ export type TestTypeArrayTisU<
     : [T] extends [isU]
     ? TestPassed
     : TestFailed
-  : [T] extends [readonly [unknown]]
-  ? /*readonly [unknown]*/ [ReadonlyTupleOnly<isU>] extends [never]
-    ? TestFailed
+  : [ReadonlyTupleOnly<T>] extends [never]
+  ? /*readonly unknown[]*/ [ReadonlyArrayOnly<isU>] extends [never]
+    ? TestFailed // fails here
     : [T] extends [isU]
     ? TestPassed
     : TestFailed
-  : /*readonly unknown[]*/ [ReadonlyArrayOnly<isU>] extends [never]
+  : /*readonly [unknown]*/ [ReadonlyTupleOnly<isU>] extends [never]
   ? TestFailed
   : [T] extends [isU]
   ? TestPassed
   : TestFailed;
+
 export type IsArrayInU<T extends readonly unknown[], inU> = TestPassed extends (
   inU extends unknown
     ? inU extends readonly unknown[]

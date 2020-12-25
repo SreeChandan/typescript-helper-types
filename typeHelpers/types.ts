@@ -45,6 +45,24 @@ export type ToUnionOrUnionArray<T> = [T] extends [readonly unknown[]]
   Q = keyof T,
 > = Q extends `${number}` ? Q : never;*/
 import { ArrayIndices } from "./typesBase";
+
+export type ArrayIndicesSlice<
+  List extends readonly unknown[],
+  SliceIndexes extends `${number}`,
+  U extends string = ArrayIndices<List>
+> = keyof {
+  [P in U extends SliceIndexes ? never : U]: P extends number ? List[P] : never;
+};
+export type UniqueList<
+  T extends readonly unknown[],
+  Part1 = {
+    [P in ArrayIndices<T>]: T[P] extends T[ArrayIndicesSlice<T, P>]
+      ? never
+      : T[P];
+  },
+  Part2 = Part1[keyof Part1]
+> = T[number] extends Part2 ? T : never;
+
 type ArrayIndicesTest = ArrayIndices<[5, 6, 7]>;
 type ArrayIndicesTest2 = keyof [5, 6, 7]; //extends number ? keyof [5,6.7]:never;
 type IsUnion<T, U extends T = T> = (
