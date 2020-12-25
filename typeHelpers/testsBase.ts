@@ -1,7 +1,11 @@
 export const __TEST_PASSED__ = Symbol();
 export const __TEST_FAILED__ = Symbol();
-export type TestPassed = typeof __TEST_PASSED__;
-export type TestFailed = typeof __TEST_FAILED__;
+export enum __TEST__STATE__ {
+  PASSED,
+  FAILED
+}
+export type TestPassed = typeof __TEST__STATE__.PASSED;
+export type TestFailed = typeof __TEST__STATE__.FAILED;
 
 type ArrayIndices<
   T extends readonly unknown[],

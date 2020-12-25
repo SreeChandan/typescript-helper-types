@@ -1,8 +1,7 @@
 import {
   TestFailed,
   TestPassed,
-  __TEST_PASSED__,
-  __TEST_FAILED__,
+  __TEST__STATE__,
   TestTypeTinU,
   Not,
   TestTypeTisU,
@@ -144,25 +143,26 @@ function unionToUnionOrUnionArrayTest() {
 
 import { ToUnionOrUnionArray } from "./types";
 function toUnionOrUnionArrayTest() {
-  type tt = ToUnionOrUnionArray<"foo">;
-  type tt1 = ToUnionOrUnionArray<"foo"[]>;
-  type tt2 = ToUnionOrUnionArray<["foo"]>;
-  type tt3 = ToUnionOrUnionArray<"foo" | "bar">;
-  type tt4 = ToUnionOrUnionArray<("foo" | "bar")[]>;
-  type test = TestTypeTisU<
-    ToUnionOrUnionArray<"foo"[]>,
-    "foo" | "foo"[] | readonly "foo"[]
-  >; // should fail
-  type test3c = TestTypeTisU<
-    ToUnionOrUnionArray<"foo" | "bar">,
-    "foo" | "bar" | ("foo" | "bar")[] | readonly ("foo" | "bar")[]
-  >; // should pass
+  type tt = ToUnionOrUnionArray<"foo" | "bar"[]>;
 
   type testsManager = TestManager<
     [
       TestTypeTisU<
+        ToUnionOrUnionArray<"foo">,
+        "foo" | "foo"[] | ["foo"] | readonly "foo"[] | readonly ["foo"]
+      >,
+      TestTypeTisU<
         ToUnionOrUnionArray<"foo"[]>,
-        "foo" | "foo"[] | readonly "foo"[] | readonly ["foo"]
+        "foo" | "foo"[] | ["foo"] | readonly "foo"[] | readonly ["foo"]
+      >,
+      TestTypeTisU<
+        ToUnionOrUnionArray<"foo" | "bar">,
+        | "foo"
+        | "bar"
+        | ["foo" | "bar"]
+        | readonly ("foo" | "bar")[]
+        | readonly ["foo" | "bar"]
+        | ("foo" | "bar")[]
       >,
       TestTypeTisU<
         ToUnionOrUnionArray<("foo" | "bar")[]>,
@@ -185,23 +185,23 @@ function toUnionOrUnionArrayTest() {
       >,
       TestTypeTisU<
         ToUnionOrUnionArray<("foo" | "bar")[]>,
-        "foo" | "bar" | ("foo" | "bar")[] | "foo"[] | "bar"[]
+        | "foo"
+        | "bar"
+        | ["foo" | "bar"]
+        | ("foo" | "bar")[]
+        | readonly ("foo" | "bar")[]
+        | readonly ["foo" | "bar"]
+      >,
+      TestTypeTisU<
+        ToUnionOrUnionArray<"foo" | "bar"[]>,
+        | "foo"
+        | "bar"[]
+        | ["foo" | "bar"[]]
+        | readonly ("foo" | "bar"[])[]
+        | readonly ["foo" | "bar"[]]
+        | ("foo" | "bar"[])[]
       >,
       TestTypeTinU<"foo"[] | "bar"[], ToUnionOrUnionArray<("foo" | "bar")[]>>,
-
-      TestTypeTisU<ToUnionOrUnionArray<"foo">, "foo" | "foo"[]>,
-      TestTypeTisU<
-        ToUnionOrUnionArray<"foo" | "foo"[]>,
-        ("foo" | "foo"[])[] | "foo" | "foo"[]
-      >,
-      TestTypeTisU<
-        ToUnionOrUnionArray<"foo" | "bar">,
-        "foo" | "bar" | ("foo" | "bar")[]
-      >,
-      TestTypeTisU<
-        ToUnionOrUnionArray<"foo" | "bar">,
-        "foo" | "bar" | ("foo" | "bar")[] | "foo"[] | "bar"[]
-      >,
       TestTypeTinU<"foo"[] | "bar"[], ToUnionOrUnionArray<"foo" | "bar">>
     ]
   >;
