@@ -1,7 +1,7 @@
+/*import {
+ //__TEST__STATE__
+} from "./typesBase";*/
 import {
-  TestFailed,
-  TestPassed,
-  __TEST__STATE__,
   TestTypeTinU,
   Not,
   TestTypeTisU,
