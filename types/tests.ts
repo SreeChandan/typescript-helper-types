@@ -5,6 +5,7 @@ import {
   TestTypeTisU,
   TestReturn,
   TestManager,
+  ExtractTestReturn,
 } from "./testsBase";
 
 import { RemoveReadonlyArrayOnly } from "./types";
@@ -26,7 +27,7 @@ function filterOutReadonlyArrayOnlyTest() {
   type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
-  return [undefined as result | undefined] as const; // ref: https://github.com/microsoft/TypeScript/issues/32242#issuecomment-508266857
+  return TestReturn<result>();
 }
 
 import { RemoveArrayOnly } from "./types";
@@ -46,7 +47,7 @@ function filterOutArrayOnlyTest() {
   type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
-  return [undefined as result | undefined] as const;
+  return TestReturn<result>();
 }
 
 import { RemoveArray } from "./types";
@@ -62,7 +63,7 @@ function filterOutArrayTest() {
   type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
-  return [undefined as result | undefined] as const;
+  return TestReturn<result>();
 }
 
 import { ReadonlyArrayToUnionArray } from "./types";
@@ -78,7 +79,7 @@ function readonlyArrayToUnionArrayTest() {
   type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
-  return [undefined as result | undefined] as const;
+  return TestReturn<result>();
 }
 
 import { ArrayToUnionArray } from "./types";
@@ -104,7 +105,7 @@ function arrayToUnionArrayTest() {
   type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
-  return [undefined as result | undefined] as const;
+  return TestReturn<result>();
 }
 
 import { UnionToUnionOrUnionArray } from "./types";
@@ -136,7 +137,7 @@ function unionToUnionOrUnionArrayTest() {
   type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
-  return [undefined as result | undefined] as const;
+  return TestReturn<result>();
 }
 
 import { ToUnionOrUnionArray } from "./types";
@@ -205,52 +206,52 @@ function toUnionOrUnionArrayTest() {
   type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
-  return [undefined as result | undefined] as const;
+  return TestReturn<result>();
 }
 
-import { ArrayIndicesSlice } from "./types";
-function arrayIndicesSliceTest() {
+import { ArrayIndicesExclude } from "./types";
+function arrayIndicesExcludeTest() {
   type testsManager = TestManager<
-    [TestTypeTisU<ArrayIndicesSlice<["foo"], "0">, never>]
+    [TestTypeTisU<ArrayIndicesExclude<["foo"], "0">, never>]
   >;
   type passedTests = testsManager["PassedTests"];
   type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
-  return [undefined as result | undefined] as const;
+  return TestReturn<result>();
 }
 
-import { UniqueList } from "./types";
+import { IfUniqueList } from "./types";
 function uniqueListTest() {
   type testsManager = TestManager<
     [
       TestTypeTisU<
-        UniqueList<readonly ["foo", "bar"]>,
+        IfUniqueList<readonly ["foo", "bar"]>,
         readonly ["foo", "bar"]
       >,
-      TestTypeTisU<UniqueList<readonly ["foo", "foo"]>, never>,
+      TestTypeTisU<IfUniqueList<readonly ["foo", "foo"]>, never>,
       TestTypeTisU<
-        UniqueList<readonly ["foo"| "bar", "bar"]>,
+        IfUniqueList<readonly ["foo" | "bar", "bar"]>,
         readonly ["foo" | "bar", "bar"]
-      >,
+      >
     ]
   >;
   type passedTests = testsManager["PassedTests"];
   type failedTests = testsManager["FailedTests"];
   type result = testsManager["Result"];
 
-  return [undefined as result | undefined] as const;
+  return TestReturn<result>();
 }
 
 type testsManager = TestManager<
   [
-    TestReturn<typeof filterOutReadonlyArrayOnlyTest>,
-    TestReturn<typeof filterOutArrayOnlyTest>,
-    TestReturn<typeof filterOutArrayTest>,
-    TestReturn<typeof readonlyArrayToUnionArrayTest>,
-    TestReturn<typeof arrayToUnionArrayTest>,
-    TestReturn<typeof unionToUnionOrUnionArrayTest>,
-    TestReturn<typeof toUnionOrUnionArrayTest>
+    ExtractTestReturn<typeof filterOutReadonlyArrayOnlyTest>,
+    ExtractTestReturn<typeof filterOutArrayOnlyTest>,
+    ExtractTestReturn<typeof filterOutArrayTest>,
+    ExtractTestReturn<typeof readonlyArrayToUnionArrayTest>,
+    ExtractTestReturn<typeof arrayToUnionArrayTest>,
+    ExtractTestReturn<typeof unionToUnionOrUnionArrayTest>,
+    ExtractTestReturn<typeof toUnionOrUnionArrayTest>
   ]
 >;
 type passedTests = testsManager["PassedTests"];
