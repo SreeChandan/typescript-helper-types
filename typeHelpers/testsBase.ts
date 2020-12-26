@@ -31,7 +31,10 @@ export type Not<T extends TestFailed | TestPassed> = T extends TestPassed
   ? TestFailed
   : TestPassed;
 
-export type TestReturn<T extends () => readonly [unknown]> = ReturnType<T>[0];
+export type TestReturn<
+  T extends () => readonly [unknown],
+  Return = ReturnType<T>[0]
+> = Return extends undefined ? never : Return;
 export type TestManager<
   T extends readonly (TestFailed | TestPassed)[],
   TestPassedMsg extends string = "TEST PASSED",
@@ -145,15 +148,16 @@ function testTypeTisUTest() {
   // fail cases
   type test3 = Not<TestTypeTisU<"foo", "foo" | "bar">>;
   type test4 = Not<TestTypeTisU<"foo" | "bar", "foo">>;
+  type test5 = Not<TestTypeTisU<unknown, any>>;
 
-  type test5 = Not<
+  type test6 = Not<
     TestTypeTisU<
       "foo" | "foo"[] | readonly "foo"[],
       "foo" | "foo"[] | readonly "foo"[] | readonly ["foo"]
     >
   >;
 
-  type result = TestPassed extends test1 & test2 & test3 & test4 & test5
+  type result = TestPassed extends test1 & test2 & test3 & test4 & test5 & test6
     ? TestPassed
     : TestFailed;
 
