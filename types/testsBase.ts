@@ -30,25 +30,25 @@ export type Not<
   T extends TEST["FAILED"] | TEST["PASSED"]
 > = T extends TEST["PASSED"] ? TEST["FAILED"] : TEST["PASSED"];
 
-export type ExtractTestReturn<
-  T extends () => readonly [unknown]
-> = ReturnType<T>[0];
 /**
  * ref: https://github.com/microsoft/TypeScript/issues/32242#issuecomment-508266857
  * @param ret 
  */
 export declare function TestReturn<Return extends TEST[keyof TEST]>() : readonly [Return];
+export type ExtractTestReturn<
+  T extends () => readonly [unknown]
+> = ReturnType<T>[0];
 export type TestManager<
   T extends readonly (TEST["FAILED"] | TEST["PASSED"])[],
   TestPassedMsg extends string = "TEST PASSED",
   TestFailedMsg extends string = "TEST FAILED",
   U extends ArrayIndices<T> = ArrayIndices<T>,
   PassedTests extends `test${U}` = keyof {
-    [P in `test${U}`]: T[P extends `test${infer U}`
-      ? U
-      : never] extends TEST["PASSED"]
-      ? TestPassedMsg
-      : TestFailedMsg;
+    [P in U extends unknown
+      ? T[U] extends TEST["PASSED"]
+        ? `test${U}`
+        : never
+      : never]: unknown;
   },
   FailedTests extends `test${U}` = keyof {
     [P in U extends unknown
