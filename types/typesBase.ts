@@ -54,9 +54,17 @@ export type TestTypeArrayTisU<
   | ([T] extends [never] ? true : false)
   | ([isU] extends [never] ? true : false)
   ? TEST["FAILED"]
-  : [T] extends [unknown[]] // T is not readonly
-  ? /*unknown[]*/ [T] extends [[unknown]]
-    ? /**[unknown] */ [IfTupleOnly<isU>] extends [never]
+  : [IfTupleOnly<T>] extends [never]
+  ? [IfArrayOnly<T>] extends [never]
+    ? [IfReadonlyTupleOnly<T>] extends [never]
+      ? [IfReadonlyArrayOnly<T>] extends [never]
+        ? never
+        : /**unknown[] */ [IfReadonlyArrayOnly<isU>] extends [never]
+        ? TEST["FAILED"]
+        : [T] extends [isU]
+        ? TEST["PASSED"]
+        : TEST["FAILED"]
+      : /**unknown[] */ [IfReadonlyTupleOnly<isU>] extends [never]
       ? TEST["FAILED"]
       : [T] extends [isU]
       ? TEST["PASSED"]
@@ -66,19 +74,13 @@ export type TestTypeArrayTisU<
     : [T] extends [isU]
     ? TEST["PASSED"]
     : TEST["FAILED"]
-  : [IfReadonlyTupleOnly<T>] extends [never]
-  ? /*readonly unknown[]*/ [IfReadonlyArrayOnly<isU>] extends [never]
-    ? TEST["FAILED"] // fails here
-    : [T] extends [isU]
-    ? TEST["PASSED"]
-    : TEST["FAILED"]
-  : /*readonly [unknown]*/ [IfReadonlyTupleOnly<isU>] extends [never]
+  : /**[unknown] */ [IfTupleOnly<isU>] extends [never]
   ? TEST["FAILED"]
   : [T] extends [isU]
   ? TEST["PASSED"]
   : TEST["FAILED"];
 
-export type IsArrayInU<
+export type IsArrayTInU<
   T extends readonly unknown[],
   inU
 > = TEST["PASSED"] extends (
@@ -90,7 +92,7 @@ export type IsArrayInU<
 )
   ? TEST["PASSED"]
   : TEST["FAILED"];
-export type IsNotArrayInU<T, inU> = TEST["PASSED"] extends (
+export type IsNotArrayTInU<T, inU> = TEST["PASSED"] extends (
   inU extends unknown
     ? inU extends readonly unknown[]
       ? never

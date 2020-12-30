@@ -36,8 +36,13 @@ export type UnionToUnionOrUnionArray<
   T
   //T extends FilterOutArray<U> = FilterOutArray<U>
 > = [T] extends [never] ? never : T | T[];
-export type ToUnionOrUnionArray<T> = [T] extends [readonly unknown[]]
+export type ToUnionOrUnionArray1<T> = [T] extends [readonly unknown[]]
   ? ArrayToUnionArray<T> | T[number]
+  : readonly T[] | readonly [T] | T[] | [T] | T;
+export type ToUnionOrUnionArray<T, UniqueOnly extends true | false = false> = [
+  T
+] extends [readonly unknown[]]
+  ? ArrayToUnionArray<UniqueOnly extends true ? IfUniqueList<T> : T> | T[number]
   : readonly T[] | readonly [T] | T[] | [T] | T;
 
 /*type ArrayIndices<
@@ -63,18 +68,10 @@ export type IfUniqueList<
   Part2 = Part1[keyof Part1]
 > = T[number] extends Part2 ? T : never;
 
-type ArrayIndicesTest = ArrayIndices<[5, 6, 7]>;
-type ArrayIndicesTest2 = keyof [5, 6, 7]; //extends number ? keyof [5,6.7]:never;
-type IsUnion<T, U extends T = T> = (
-  T extends any ? (U extends T ? false : true) : never
-) extends false
-  ? false
-  : true;
-type isTuple<
+export type SafeArrayAccess<
   T extends readonly unknown[],
-  K extends `${number}` = ArrayIndices<T>
-> = [K] extends [never] ? false : true;
-type tup = isTuple<[5, 6, 7]>;
-type tup2 = isTuple<(5 | 6 | 7)[]>; // should fail
-type tup3 = isTuple<readonly [5, 6, 7]>;
-type tup4 = isTuple<readonly (5 | 6 | 7)[]>;
+  F extends number,
+  K extends `${number}` = `${F}`
+> = K extends ArrayIndices<T>
+  ? T[F]
+  : (`${number}` extends K ? T[ArrayIndices<T>] : never) | undefined;

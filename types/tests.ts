@@ -233,6 +233,25 @@ function uniqueListTest() {
       TestTypeTisU<
         IfUniqueList<readonly ["foo" | "bar", "bar"]>,
         readonly ["foo" | "bar", "bar"]
+      >,
+      TestTypeTisU<IfUniqueList<["foo", "bar"]>, ["foo", "bar"]>,
+      TestTypeTisU<IfUniqueList<["foo", "foo"]>, never>
+    ]
+  >;
+  type passedTests = testsManager["PassedTests"];
+  type failedTests = testsManager["FailedTests"];
+  type result = testsManager["Result"];
+
+  return TestReturn<result>();
+}
+
+import { SafeArrayAccess } from "./types";
+function safeArrayAccessTest() {
+  type testsManager = TestManager<
+    [
+      TestTypeTisU<
+        SafeArrayAccess<readonly [5, 6, 7], number>,
+        5 | 6 | 7 | undefined
       >
     ]
   >;
@@ -251,7 +270,9 @@ type testsManager = TestManager<
     ExtractTestReturn<typeof readonlyArrayToUnionArrayTest>,
     ExtractTestReturn<typeof arrayToUnionArrayTest>,
     ExtractTestReturn<typeof unionToUnionOrUnionArrayTest>,
-    ExtractTestReturn<typeof toUnionOrUnionArrayTest>
+    ExtractTestReturn<typeof toUnionOrUnionArrayTest>,
+    ExtractTestReturn<typeof uniqueListTest>,
+    ExtractTestReturn<typeof safeArrayAccessTest>
   ]
 >;
 type passedTests = testsManager["PassedTests"];

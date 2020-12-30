@@ -1,12 +1,11 @@
 import {
   TEST,
-  IsArrayInU,
-  IsNotArrayInU,
+  IsArrayTInU,
+  IsNotArrayTInU,
   ArrayIndices,
   TestTypeArrayTisU,
   NotUnion,
 } from "./typesBase";
-//export { TestPassed, TestState["FAILED"] };
 
 export type TestTypeTinU<T, inU> = [T] extends [never]
   ? [inU] extends [never]
@@ -15,12 +14,12 @@ export type TestTypeTinU<T, inU> = [T] extends [never]
   : [inU] extends [never]
   ? TEST["FAILED"]
   : TEST["FAILED"] extends (
-      T extends readonly unknown[] ? IsArrayInU<T, inU> : IsNotArrayInU<T, inU>
+      T extends readonly unknown[] ? IsArrayTInU<T, inU> : IsNotArrayTInU<T, inU>
     )
   ? TEST["FAILED"]
   : TEST["PASSED"];
 /**
- * Note: may not deal with {} types properly yet.
+ * Note: may not deal with {} or function types properly yet.
  */
 export type TestTypeTisU<T, isU> = TEST["PASSED"] extends TestTypeTinU<T, isU> &
   TestTypeTinU<isU, T>
@@ -32,16 +31,16 @@ export type Not<
 
 /**
  * ref: https://github.com/microsoft/TypeScript/issues/32242#issuecomment-508266857
- * @param ret 
+ * @param ret
  */
-export declare function TestReturn<Return extends TEST[keyof TEST]>() : readonly [Return];
+export declare function TestReturn<
+  Return extends TEST[keyof TEST]
+>(): readonly [Return];
 export type ExtractTestReturn<
   T extends () => readonly [unknown]
 > = ReturnType<T>[0];
 export type TestManager<
   T extends readonly (TEST["FAILED"] | TEST["PASSED"])[],
-  TestPassedMsg extends string = "TEST PASSED",
-  TestFailedMsg extends string = "TEST FAILED",
   U extends ArrayIndices<T> = ArrayIndices<T>,
   PassedTests extends `test${U}` = keyof {
     [P in U extends unknown
@@ -93,6 +92,9 @@ function testTypeArrayTisUTest() {
     TestTypeArrayTisU<readonly "foo"[] | readonly ["foo"], readonly ["foo"]>
   >;
 
+  type test10 = TestTypeArrayTisU<["foo"], ["foo"]>;
+  type test11 = TestTypeArrayTisU<["foo", "bar"], ["foo", "bar"]>;
+
   type result = TEST["PASSED"] extends test1 &
     test2 &
     test3 &
@@ -100,18 +102,20 @@ function testTypeArrayTisUTest() {
     test5 &
     test7 &
     test8 &
-    test9
+    test9 &
+    test10 &
+    test11
     ? TEST["PASSED"]
     : TEST["FAILED"];
   return [undefined as result | undefined] as const;
 }
 
 function isNotArrayInUTest() {
-  type test1 = IsNotArrayInU<"foo", "foo">; // case: Best case scenario when input and output are same.
-  type test2 = IsNotArrayInU<"foo", "foo" | "bar">;
-  type test3 = IsNotArrayInU<"foo", "foo" | "bar"[]>;
-  type test4 = Not<IsNotArrayInU<"foo", "foo"[] | "bar">>;
-  type test5 = IsNotArrayInU<"foo", "foo" | "foo"[]>;
+  type test1 = IsNotArrayTInU<"foo", "foo">; // case: Best case scenario when input and output are same.
+  type test2 = IsNotArrayTInU<"foo", "foo" | "bar">;
+  type test3 = IsNotArrayTInU<"foo", "foo" | "bar"[]>;
+  type test4 = Not<IsNotArrayTInU<"foo", "foo"[] | "bar">>;
+  type test5 = IsNotArrayTInU<"foo", "foo" | "foo"[]>;
 
   type result = TEST["PASSED"] extends test1 & test2 & test3 & test4 & test5
     ? TEST["PASSED"]
@@ -146,6 +150,7 @@ function testTypeTinUTest() {
 
   return [undefined as result | undefined] as const;
 }
+
 function testTypeTisUTest() {
   type test1 = TestTypeTisU<"foo", "foo">; // case: Best case scenario when input and output are same.
   type test2 = TestTypeTisU<"foo" | "bar", "foo" | "bar">;
